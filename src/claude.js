@@ -14,25 +14,16 @@ Reply with ONLY a raw JSON object. No markdown. No explanation. No text before o
 category must be exactly one of: Strategy, Technology, Business, Science, Philosophy, Skills, Other
 growth_score is an integer 1-10`
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/api/chat', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, apiKey })
   })
 
-  const rawText = await response.text()
-  if (!response.ok) throw new Error(`API ${response.status}: ${rawText.slice(0, 300)}`)
+  const rawData = await response.json()
+  if (!response.ok) throw new Error(`API ${response.status}: ${JSON.stringify(rawData).slice(0, 200)}`)
 
-  const data = JSON.parse(rawText)
-  const text = (data.content || []).map(i => i.text || '').join('').trim()
+  const text = (rawData.content || []).map(i => i.text || '').join('').trim()
   const start = text.indexOf('{')
   const end = text.lastIndexOf('}')
   if (start === -1 || end === -1) throw new Error(`No JSON in response: ${text.slice(0, 200)}`)
